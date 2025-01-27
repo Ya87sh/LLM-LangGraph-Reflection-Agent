@@ -40,6 +40,10 @@ def revise_node(state):
     
     return state
 
+# Define the condition to continue iterating
+def continue_condition(state):
+    return state.get("iteration", 0) < 6
+
 # Create the graph
 workflow = Graph()
 
@@ -47,19 +51,14 @@ workflow = Graph()
 workflow.add_node("generate", generate_node)
 workflow.add_node("revise", revise_node)
 
-# Define edges
-workflow.add_edge("generate", "revise")
-workflow.add_edge("revise", "generate")
+# Define a directed edge
+workflow.add_edge("generate", "revise") # Always move from Generate to Revise
+
+# Add a conditional edge
+workflow.add_conditional_edge("revise", continue_condition, "generate") # Conditionally loop back to Generate
 
 # Define the entry point
 workflow.set_entry_point("generate")
-
-# Define the condition to continue iterating
-def continue_condition(state):
-    return state.get("iteration", 0) < 6
-
-# Add a conditional edge
-workflow.add_conditional_edge("revise", continue_condition, "generate")
 
 # Compile the graph
 app = workflow.compile()
